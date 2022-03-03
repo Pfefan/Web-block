@@ -8,7 +8,7 @@ class WebUntis():
         self.payload = {
             'school': 'htbla-weiz',
             'j_username': 'defaultuser',
-            'j_password': 'wrongpassword',
+            'j_password': 'defaultpassword',
             'token': ''
         }
 
