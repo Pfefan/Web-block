@@ -2,11 +2,10 @@
 import json
 import re
 import sys
-
-from bs4 import BeautifulSoup
-from requests_html import HTMLSession
 from pathlib import Path
 
+from requests_html import HTMLSession
+from bs4 import BeautifulSoup
 
 class WebUntis():
     """class"""
@@ -34,13 +33,13 @@ class WebUntis():
 
         fle = Path('tos.txt')
         fle.touch(exist_ok=True)
-        with open("tos.txt", "r+", encoding="utf8") as f:
-            if f.read() == "True":
+        with open("tos.txt", "r+", encoding="utf8") as file:
+            if file.read() == "True":
                 pass
-            elif f.read() == "":
+            elif file.read() == "":
                 i = input("I accept no liability for any property damage or personal injury caused by this program, agree y/n: ")
                 if i == "y":
-                    f.write("True")
+                    file.write("True")
                 else:
                     sys.exit()
 
@@ -52,7 +51,7 @@ class WebUntis():
 
         while True:
             session = HTMLSession()
-            s = session.post(self.url, data=self.payload)
+            session.post(self.url, data=self.payload)
             page = session.get(self.logurl)
             soup = BeautifulSoup(page.content, 'html.parser')
 
