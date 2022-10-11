@@ -1,0 +1,2 @@
+# prevents config files from being pushed
+*.dat

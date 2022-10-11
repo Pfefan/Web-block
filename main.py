@@ -1,11 +1,13 @@
 """importing Modules"""
 import json
+import os
 import re
 import sys
-from pathlib import Path
 
-from requests_html import HTMLSession
+import validators
 from bs4 import BeautifulSoup
+from requests_html import HTMLSession
+
 
 class WebUntis():
     """class"""
@@ -31,9 +33,9 @@ class WebUntis():
 
         """)
 
-        fle = Path('tos.txt')
-        fle.touch(exist_ok=True)
-        with open("tos.txt", "r+", encoding="utf8") as file:
+        if os.path.isfile("tos.dat") is False:
+            open('tos.dat', 'w+')
+        with open("tos.dat", "r+", encoding="utf8") as file:
             if file.read() == "True":
                 pass
             elif file.read() == "":
@@ -44,10 +46,50 @@ class WebUntis():
                     sys.exit()
 
         user = input("Enter a user: ")
-        school = input("Enter a school (leave empty to use htlba weiz): ")
+        school = ""
+        validinput = False
+        schools = ""
+        schoollist = []
+
+        # get save school id's from file
+        if os.path.isfile("school.dat") is False:
+            open('school.dat', 'w+')
+        with open("school.dat", "r+") as file:
+            lines = file.readlines()
+            if len(lines) > 0:
+                counter = 1
+                schools = "\n"
+                for line in lines:
+                    schools += f"{counter}. {line}"
+                    schoollist.append(line)
+                    counter += 1
+                schools += "\n --> "
+
+        while validinput is False:
+            school_input = input("Enter school login url or enter id of saved schools: " + schools)
+
+            if validators.url(school_input) is True:
+                try:
+                    school_input = school_input.split('/')[4]
+                    school = school_input.split("=")[1][:-1]
+                    validinput = True
+                except IndexError:
+                    validinput = False
+            elif self.checkforint(school_input) is True:
+                school = schoollist[int(school_input) - 1]
+                validinput = True
+            else:
+                school = school_input
+
+            if school not in schoollist:
+                with open("school.dat", "a", encoding="utf8") as file:
+                    if len(schoollist) > 0:
+                        file.write("\n" + school)
+                    else:
+                        file.write(school)
+
         self.payload["j_username"] = user
-        if school != "":
-            self.payload["school"] = school
+        self.payload["school"] = school
 
         while True:
             session = HTMLSession()
@@ -68,5 +110,13 @@ class WebUntis():
             if structjson["loginServiceConfig"]["loginError"] != "Invalid user name and/or password":
                 print("successfully blocked the user for 30mins")
                 break
+
+    def checkforint(self, value):
+        try:
+            int(value)
+            return True
+        except ValueError:
+            return False
+
 
 WebUntis().main()
