@@ -34,7 +34,7 @@ class WebUntis():
         """)
 
         if os.path.isfile("tos.dat") is False:
-            open('tos.dat', 'w+')
+            open('tos.dat', 'w+', encoding="utf8")
         with open("tos.dat", "r+", encoding="utf8") as file:
             if file.read() == "True":
                 pass
@@ -53,8 +53,8 @@ class WebUntis():
 
         # get save school id's from file
         if os.path.isfile("school.dat") is False:
-            open('school.dat', 'w+')
-        with open("school.dat", "r+") as file:
+            open('school.dat', 'w+', encoding="utf8")
+        with open("school.dat", "r", encoding="utf8") as file:
             lines = file.readlines()
             if len(lines) > 0:
                 counter = 1
@@ -65,6 +65,7 @@ class WebUntis():
                     counter += 1
                 schools += "\n --> "
 
+        # checks for valid school input from url, file or plain text
         while validinput is False:
             school_input = input("Enter school login url or enter id of saved schools: " + schools)
 
@@ -80,31 +81,40 @@ class WebUntis():
                 validinput = True
             else:
                 school = school_input
+                validinput = True
 
-            if school not in schoollist:
-                with open("school.dat", "a", encoding="utf8") as file:
-                    if len(schoollist) > 0:
-                        file.write("\n" + school)
-                    else:
-                        file.write(school)
+        # writes new school to file if its not saved there
+        if school not in schoollist:
+            with open("school.dat", "a", encoding="utf8") as file:
+                if len(schoollist) > 0:
+                    file.write("\n" + school)
+                else:
+                    file.write(school)
 
+        #set payload
         self.payload["j_username"] = user
         self.payload["school"] = school
 
         while True:
+            #webscapes webuntis
             session = HTMLSession()
             session.post(self.url, data=self.payload)
             page = session.get(self.logurl)
             soup = BeautifulSoup(page.content, 'html.parser')
 
-            results = soup.find('script')
-            stringtext = results.get_text()
-            array = stringtext.split(';')
-            untis = array[3].strip()
-            untis = re.sub("\s\s+"," ", untis)
-            untis = untis[18:-6].split(',"lastUserName"')[0] +"}}"
-            structjson = json.loads(untis)
-            self.attempts += 1
+            #webscarpes if user is banned or not
+            try:
+                results = soup.find('script')
+                stringtext = results.get_text()
+                array = stringtext.split(';')
+                untis = array[3].strip()
+                untis = re.sub("\s\s+"," ", untis)
+                untis = untis[18:-6].split(',"lastUserName"')[0] +"}}"
+                structjson = json.loads(untis)
+                self.attempts += 1
+            except IndexError:
+                print("invalid school input")
+                break
 
             print(f"attempts: {self.attempts}", end="\r")
             if structjson["loginServiceConfig"]["loginError"] != "Invalid user name and/or password":
@@ -112,6 +122,7 @@ class WebUntis():
                 break
 
     def checkforint(self, value):
+        """func that checks if the given value is a int type"""
         try:
             int(value)
             return True
