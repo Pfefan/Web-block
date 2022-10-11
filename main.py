@@ -67,7 +67,7 @@ class WebUntis():
 
         # checks for valid school input from url, file or plain text
         while validinput is False:
-            school_input = input("Enter school login url or enter id of saved schools: " + schools)
+            school_input = input("Enter school login page url, the id of saved schools or if you know it the school id: " + schools)
 
             if validators.url(school_input) is True:
                 try:
