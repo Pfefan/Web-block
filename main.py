@@ -16,7 +16,7 @@ class WebUntis():
         self.logurl = "https://aoide.webuntis.com/WebUntis/"
         self.attempts = 0
         self.payload = {
-            'school': 'htbla-weiz',
+            'school': 'school',
             'j_username': 'user',
             'j_password': 'password',
             'token': ''
